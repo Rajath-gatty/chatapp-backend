@@ -4,7 +4,7 @@
     "description": "Whatsapp clone",
     "main": "app.js",
     "scripts": {
-        "start": "nodemon app.js"
+        "start": "app.js"
     },
     "author": "Rajath Gatty",
     "license": "MIT",
