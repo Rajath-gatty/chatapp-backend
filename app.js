@@ -18,7 +18,7 @@ app.use('/api/auth', require('./Routes/authRoutes'));
 
 const io = require("socket.io")(server, {
     cors: {
-      origin: "https://chatapp-01.netlify.app",
+      origin: "*",
       methods: ["GET", "POST"]
     }
   });
@@ -38,6 +38,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomId).emit('isTyping');
     })
   }); 
+  
   eventEmitter.on('new Message', (data) => {
       console.log(data);
       io.to(data.conversationId).emit('send-message',data);
