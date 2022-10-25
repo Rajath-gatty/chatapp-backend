@@ -45,6 +45,6 @@ io.on('connection', (socket) => {
 
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.gz5ppoe.mongodb.net/whatsapp?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => {
-    server.listen(8080);
+    server.listen(process.env.PORT||8080);
 })
 .catch(err => console.log(err));
