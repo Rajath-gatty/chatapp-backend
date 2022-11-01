@@ -13,8 +13,8 @@ sharedKeyCredential
 const containerClient = blobServiceClient.getContainerClient('chatapp');
 
 exports.postConversation = (req,res) => {
-    const {participants, group} = req.body;
-    const newConversation = new Conversation({participants, group});
+    const {participants} = req.body;
+    const newConversation = new Conversation({participants});
     newConversation.save();
     res.send('ok');
 }
@@ -22,7 +22,7 @@ exports.postConversation = (req,res) => {
 exports.getConversation = async(req,res) => {
     const {userId} = req;
 
-    const result = await Conversation.find({participants:{$all:[userId]}},{participants: {$elemMatch: {$ne: userId}}, group: 1}).populate('participants', 'name username profileUrl');
+    const result = await Conversation.find({participants:{$all:[userId]}},{participants: {$elemMatch: {$ne: userId}}}).sort({updatedAt:-1}).populate('participants', 'name username profileUrl');
 
     res.send(result);
 }
@@ -62,16 +62,17 @@ exports.postMessage = async(req,res) => {
     try {
         if(newChat){
             const newId = Array.isArray(id) ? [userId,...id] : [userId,id];
-            const conversation = new Conversation({participants:newId, group:newId.length>2});
+            const conversation = new Conversation({participants:newId});
             const conv = await conversation.save();
             
             const newMessage = await Message.create({conversationId:conv._id,content,senderId:userId});
-   
+  
             await User.updateMany({_id:{$in:newId}},{$push:{conversations:conv._id}});
             const updatedMessage = {...newMessage,_id:conv._id}
             res.send(updatedMessage);
         } else {
             const newMessage = await Message.create({conversationId:id,senderId:userId,content});
+            await Conversation.updateOne({_id:newMessage.conversationId},{updatedAt:new Date().toISOString});
             const eventEmitter = req.app.get('eventEmitter');
             eventEmitter.emit('new Message',newMessage);
             res.send(newMessage);
