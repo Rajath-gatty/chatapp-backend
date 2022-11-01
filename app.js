@@ -40,7 +40,6 @@ io.on('connection', (socket) => {
   }); 
   
   eventEmitter.on('new Message', (data) => {
-      console.log(data);
       io.to(data.conversationId).emit('send-message',data);
   })
 
